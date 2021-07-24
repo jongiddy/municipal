@@ -1,14 +1,14 @@
+use crate::truelayer::TrueLayerAPI;
 use oauth2::basic::{BasicClient, BasicTokenResponse};
 use oauth2::reqwest::http_client;
 use oauth2::{
-    AuthType, AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge,
-    RedirectUrl, Scope, TokenUrl,
+    AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge, RedirectUrl,
+    Scope, TokenUrl,
 };
 use open;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
 use std::error::Error;
-use std::fs::{canonicalize, read_to_string};
 use std::io;
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
 use tiny_http::{Method, Request, Response, Server, StatusCode};
@@ -19,7 +19,7 @@ fn extract_authorization_code<'a>(
     csrf_token: &CsrfToken,
 ) -> Result<std::borrow::Cow<'a, str>, Box<dyn Error>> {
     // Looking for
-    // /redirect?code=Mac..dc6&state=DL7jz5YIW4WusaYdDZrXzA%3d%3d
+    // /redirect?code=Mac..dc6&state=DL7jz5YIW4WusaYdDZrXzA%3d%3d&scope=...
     let mut received_code = None;
     let mut received_state = None;
     for pair in url.query_pairs() {
@@ -147,28 +147,18 @@ fn start_server() -> Result<Server, Box<dyn Error>> {
     Err(string_error::static_err("Could not find an available port"))
 }
 
-pub fn authenticate(client_id: String) -> Result<BasicTokenResponse, Box<dyn Error>> {
-    let truelayer_authorize_url = AuthUrl::new("https://auth.truelayer-sandbox.com/".to_string())?;
-    let truelayer_token_url = Some(TokenUrl::new(
-        "https://auth.truelayer-sandbox.com/connect/token".to_string(),
-    )?);
-
+pub fn authenticate(truelayer: &dyn TrueLayerAPI) -> Result<BasicTokenResponse, Box<dyn Error>> {
     let server = start_server()?;
     let redirect_url = format!("http://localhost:{}/redirect", server.server_addr().port());
 
-    let here = canonicalize(file!())?;
-    let top = here.parent().unwrap().parent().unwrap();
-    let secret_file = top.join("truelayer-secret.txt");
-    dbg!(&secret_file);
-    let client_secret = read_to_string(secret_file)?.trim().to_owned();
+    let credentials = truelayer.credentials()?;
 
     let client = BasicClient::new(
-        ClientId::new(client_id),
-        Some(ClientSecret::new(client_secret)),
-        truelayer_authorize_url,
-        truelayer_token_url,
+        ClientId::new(credentials.client_id),
+        Some(ClientSecret::new(credentials.client_secret)),
+        AuthUrl::new(truelayer.authorize_url())?,
+        Some(TokenUrl::new(truelayer.token_url())?),
     )
-    .set_auth_type(AuthType::RequestBody)
     .set_redirect_uri(RedirectUrl::new(redirect_url)?);
 
     // Setup PKCE code challenge
