@@ -1,0 +1,12 @@
+[package]
+name = "municipal"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+oauth2 = "4.1.0"
+open = "1.7.1"
+rand = "0.8.4"
+string-error = "0.1.0"
+tiny_http = "0.8.2"
+url = "2.2.2"
