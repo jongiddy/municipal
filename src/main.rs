@@ -20,9 +20,9 @@ const CRATE_VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 fn main() -> Result<(), Box<dyn Error>> {
     let args: Vec<String> = env::args().collect();
     let api = if args.len() == 1 {
-        &truelayer::SANDBOX_API as &dyn TrueLayerAPI
+        &truelayer::TrueLayerSandboxAPI as &dyn TrueLayerAPI
     } else if args[1] == "--live" {
-        &truelayer::LIVE_API as &dyn TrueLayerAPI
+        &truelayer::TrueLayerLiveAPI as &dyn TrueLayerAPI
     } else {
         return Err(static_err("usage: municipal [ --live ]"));
     };
