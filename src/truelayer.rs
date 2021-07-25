@@ -65,3 +65,6 @@ impl TrueLayerAPI for TrueLayerLiveAPI {
         "truelayer-live.json"
     }
 }
+
+pub(crate) const SANDBOX_API: TrueLayerSandboxAPI = TrueLayerSandboxAPI;
+pub(crate) const LIVE_API: TrueLayerLiveAPI = TrueLayerLiveAPI;

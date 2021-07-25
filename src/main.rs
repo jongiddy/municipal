@@ -1,3 +1,4 @@
+use std::env;
 use std::error::Error;
 use std::time::Duration;
 
@@ -6,6 +7,7 @@ use oauth2::TokenResponse;
 use reqwest::blocking::Client;
 use reqwest::{header, StatusCode};
 use serde_json::Value;
+use string_error::static_err;
 
 use crate::truelayer::TrueLayerAPI;
 
@@ -16,8 +18,15 @@ const CRATE_NAME: Option<&str> = option_env!("CARGO_PKG_NAME");
 const CRATE_VERSION: Option<&str> = option_env!("CARGO_PKG_VERSION");
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let api = truelayer::TrueLayerSandboxAPI;
-    let token = auth::authenticate(&api)?;
+    let args: Vec<String> = env::args().collect();
+    let api = if args.len() == 1 {
+        &truelayer::SANDBOX_API as &dyn TrueLayerAPI
+    } else if args[1] == "--live" {
+        &truelayer::LIVE_API as &dyn TrueLayerAPI
+    } else {
+        return Err(static_err("usage: municipal [ --live ]"));
+    };
+    let token = auth::authenticate(api)?;
     let mut headers = header::HeaderMap::new();
     headers.insert(
         header::USER_AGENT,

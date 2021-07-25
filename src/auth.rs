@@ -41,8 +41,9 @@ fn extract_authorization_code<'a>(
             }
             parameter => {
                 return Err(string_error::into_err(format!(
-                    "Unexpected parameter: {}",
-                    parameter
+                    "Unexpected parameter: {} {}",
+                    parameter,
+                    pair.1.as_ref()
                 )));
             }
         }
@@ -167,14 +168,8 @@ pub fn authenticate(truelayer: &dyn TrueLayerAPI) -> Result<BasicTokenResponse, 
     // Generate the full authorization URL.
     let (auth_url, csrf_token) = client
         .authorize_url(CsrfToken::new_random)
-        .add_scope(Scope::new("info".to_string()))
         .add_scope(Scope::new("accounts".to_string()))
         .add_scope(Scope::new("balance".to_string()))
-        .add_scope(Scope::new("cards".to_string()))
-        .add_scope(Scope::new("transactions".to_string()))
-        .add_scope(Scope::new("direct_debits".to_string()))
-        .add_scope(Scope::new("standing_orders".to_string()))
-        .add_scope(Scope::new("offline_access".to_string()))
         .add_extra_param("providers", "uk-ob-all uk-oauth-all uk-cs-mock")
         .set_pkce_challenge(pkce_challenge)
         .url();

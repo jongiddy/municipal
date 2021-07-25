@@ -9,3 +9,13 @@ Create a file `truelayer-sandbox.json` containing the TrueLayer client id and se
     "client_secret": "12f1a940-da45-464b-b803-53e8c95d3f2c"
 }
 ```
+
+Run using
+```
+cargo run
+```
+
+To use live bank information, create the file `truelayer-live.json` instead and run using
+```
+cargo run -- --live
+```
