@@ -20,7 +20,6 @@ pub trait TrueLayerAPI {
         let here = canonicalize(file!())?;
         let top = here.parent().unwrap().parent().unwrap();
         let credentials_file = top.join(self.credentials_file());
-        dbg!(&credentials_file);
         let credentials_json = read_to_string(credentials_file)?;
         let credentials = serde_json::from_str::<ClientCredentials>(&credentials_json)?;
         Ok(credentials)

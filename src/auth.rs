@@ -37,7 +37,7 @@ fn extract_authorization_code<'a>(
                 received_state = Some(pair.1);
             }
             "scope" => {
-                println!("ignored: {}={}", pair.0.as_ref(), pair.1.as_ref());
+                // ignore
             }
             parameter => {
                 return Err(string_error::into_err(format!(
@@ -178,8 +178,6 @@ pub fn authenticate(truelayer: &dyn TrueLayerAPI) -> Result<BasicTokenResponse, 
         .add_extra_param("providers", "uk-ob-all uk-oauth-all uk-cs-mock")
         .set_pkce_challenge(pkce_challenge)
         .url();
-
-    dbg!(auth_url.as_str());
 
     if let Err(e) = open::that(auth_url.as_str()) {
         println!("{}", e);
