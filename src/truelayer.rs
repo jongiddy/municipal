@@ -17,9 +17,7 @@ pub trait TrueLayerAPI {
     fn credentials_file(&self) -> &str;
 
     fn credentials(&self) -> Result<ClientCredentials> {
-        let here = canonicalize(file!())?;
-        let top = here.parent().unwrap().parent().unwrap();
-        let credentials_file = top.join(self.credentials_file());
+        let credentials_file = canonicalize(self.credentials_file())?;
         let credentials_json = read_to_string(&credentials_file).wrap_err_with(|| {
             format!(
                 "Failed to read credentials from {}",
