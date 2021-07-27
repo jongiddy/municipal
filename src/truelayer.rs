@@ -1,6 +1,6 @@
+use eyre::{Result, WrapErr};
 use serde::Deserialize;
 use std::borrow::Cow;
-use std::error::Error;
 use std::fs::{canonicalize, read_to_string};
 
 #[derive(Deserialize)]
@@ -16,12 +16,23 @@ pub trait TrueLayerAPI {
 
     fn credentials_file(&self) -> &str;
 
-    fn credentials(&self) -> Result<ClientCredentials, Box<dyn Error>> {
+    fn credentials(&self) -> Result<ClientCredentials> {
         let here = canonicalize(file!())?;
         let top = here.parent().unwrap().parent().unwrap();
         let credentials_file = top.join(self.credentials_file());
-        let credentials_json = read_to_string(credentials_file)?;
-        let credentials = serde_json::from_str::<ClientCredentials>(&credentials_json)?;
+        let credentials_json = read_to_string(&credentials_file).wrap_err_with(|| {
+            format!(
+                "Failed to read credentials from {}",
+                credentials_file.to_string_lossy()
+            )
+        })?;
+        let credentials = serde_json::from_str::<ClientCredentials>(&credentials_json)
+            .wrap_err_with(|| {
+                format!(
+                    "Failed to read credentials from {}",
+                    credentials_file.to_string_lossy()
+                )
+            })?;
         Ok(credentials)
     }
 

@@ -4,12 +4,12 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+eyre = "0.6.5"
 oauth2 = "4.1.0"
-open = "1.7.1"
+open = "2.0.0"
 rand = "0.8.4"
 reqwest = "~0.11"
 serde = { version = "1.0.104", features = ["derive"] }
 serde_json = "1.0.48"
-string-error = "0.1.0"
 tiny_http = "0.8.2"
 url = "2.2.2"
